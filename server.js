@@ -72,7 +72,7 @@ app.post("/alunos/criar", (req, res) => {
 
   if (existeCPF.length > 0) {
     return res.status(400).json({
-      erro: "o cpf ja existe krl kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk troxa da pora viado macaco",
+      erro: "O CPF já existe, não é possível atualizar com um CPF duplicado",
     });
   } else {
     console.log(novoAluno);
