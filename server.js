@@ -37,10 +37,13 @@ app.get("/alunos/:id", (req, res) => {
   try {
     const nomes = alunos.find((aluno) => aluno.id === id);
     if (nomes == null) {
+      return res.status(404).json({
+        mensagem: "Aluno não encontrado",
+      });
     }
     res.json(nomes);
   } catch (error) {
-    res.status(666).json({
+    res.status(400).json({
       error: "Deu ruim a situação diferenciada",
     });
   }
@@ -51,10 +54,12 @@ app.post("/alunos/criar", (req, res) => {
 
   if (!nome || nome == null || !cpf || !cep || !uf || !rua || !numero) {
     return res.status(400).json({
-      erro: "Algum dos campos obrigátorioa não foram inseridos",
+      erro: "Algum dos campos obrigátorios não foram inseridos",
     });
   }
-
+  else if (cpf.length !== 11 || cep.length !== 8 || uf.length !== 2 || numero <= 0 || !Number.isInteger(numero)) {
+    return res.status(400).json( error = "Algum dos campos obrigatórios não foram inseridos corretamente, verifique os dados e tente novamente" );{
+    }};
   const id = alunos.length > 0 ? alunos[alunos.length - 1].id + 1 : 1;
 
   alunos.forEach((aluno) => {
@@ -85,8 +90,15 @@ app.delete("/alunos/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
   const indice = alunos.findIndex((a) => a.id === id);
+  console.log(indice);
 
   if (indice === -1) {
+    return res.status(404).json({
+      mensagem: "Aluno não encontrado",
+    });
+  }
+  // Verifica se o índice é válido
+  if (indice < 0 || indice >= alunos.length) {
     return res.status(404).json({
       mensagem: "Aluno não encontrado",
     });
@@ -99,7 +111,47 @@ app.delete("/alunos/:id", (req, res) => {
     mensagem: "Aluno deletado com sucesso!",
   });
 });
+app.put("/alunos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const { nome, cpf, cep, uf, rua, numero, complemento } = req.body;
+  const indice = alunos.findIndex((a) => a.id === id);
+  if (indice === -1) {
+    return res.status(404).json({
+      mensagem: "Aluno não encontrado",
+    });
+  }
+  if (!nome || !cpf || !cep || !uf || !rua || !numero) {
+    return res.status(400).json({
+      erro: "Algum dos campos obrigatórios não foram inseridos",
+    });
+  } else if (cpf.length !== 11 || cep.length !== 8 || uf.length !== 2 || numero <= 0 || !Number.isInteger(numero)) {
+    return res.status(400).json({
+      erro: "Algum dos campos obrigatórios não foram inseridos corretamente, verifique os dados e tente novamente",
+    });
+  }
+  const existeCPF = alunos.filter((aluno) => aluno.cpf === cpf && aluno.id !== id);
+  if (existeCPF.length > 0) {
+    return res.status(400).json({
+      erro: "O CPF já existe, não é possível atualizar com um CPF duplicado",
+    });
+  }
+  const alunoAtualizado = {
+    id,
+    nome,
+    cpf,
+    cep,
+    uf,
+    rua,
+    numero,
+    complemento,
+  };
+  alunos[indice] = alunoAtualizado;
+  res.status(200).json({
+    mensagem: "Aluno atualizado com sucesso",
+    aluno: alunoAtualizado,
+  });
+});
 
-app.listen(porta, () =>
-  console.log(`Servidor rodando http://localhost:${porta}/`)
-);
+app.listen(porta, () => {
+  console.log(`Servidor rodando http://localhost:${porta}`);
+});
