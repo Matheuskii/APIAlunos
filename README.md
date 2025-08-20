@@ -25,9 +25,13 @@ npm install express cors
 - **GET** `/alunos/:id`
 - **Resposta:** JSON do aluno ou erro 404.
 
+---
+
 ### Criar novo aluno
-- **POST** /alunos/criar
-Body (JSON):
+- **POST** `/alunos/criar`
+- **Body (JSON):**
+
+```json
 {
   "nome": "João Souza",
   "cpf": "98765432100",
